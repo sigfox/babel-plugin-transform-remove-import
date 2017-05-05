@@ -6,6 +6,12 @@ const compile = (code) =>  transform(code,  {
   plugins: [plugin],
 }).code
 
+const compileWithExtensions = (code) =>  transform(code,  {
+  plugins: [[plugin, {
+    extensions: ['scss']
+  }]],
+}).code
+
 const parse = (value) => value.replace(/\t|\n|\r| /g, '')
 
 const expected = parse(`
@@ -15,8 +21,29 @@ const expected = parse(`
   export default foo;
 `)
 
+const expectedWithExtensions = parse(`
+  import another from 'another';
+  function foo() {
+    blah();
+  }
+  export default foo;
+`)
+
 
 describe("remove-import-plugin", () => {
+
+  it("import default from value.scss", () => {
+    const source = `
+      import strman from 'strman.scss'
+      import another from 'another'
+      function foo() {
+        blah();
+      }
+      export default foo;
+    `
+    expect(parse(compileWithExtensions(source))).toBe(expectedWithExtensions);
+  })
+
   it("import default from value", () => {
     const source = `
       import strman from 'strman'
